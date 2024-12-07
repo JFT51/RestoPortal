@@ -11,6 +11,20 @@ import { useDailyData } from '../hooks/useDailyData';
 import { formatDisplayDate, formatApiDate } from '../utils/dateFormat';
 import { fetchWeatherData, getCachedWeatherData } from '../services/weatherService';
 
+interface DayData {
+  date: Date;
+  enteringVisitors: number;
+  leavingVisitors: number;
+  enteringMen: number;
+  leavingMen: number;
+  enteringWomen: number;
+  leavingWomen: number;
+  enteringGroups: number;
+  leavingGroups: number;
+  passersby: number;
+  weather?: WeatherInfo;
+}
+
 interface VisitorData {
   timestamp: string;
   enteringVisitors: number;
@@ -204,11 +218,11 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
     setBenchmarkDate(date);
   };
 
-  const getDataForDate = (date: Date): VisitorData[] => {
+  const getDataForDate = (date: Date): DayData[] => {
     if (benchmarkType === 'average' && weekdayAverages) {
       const dayAverages = weekdayAverages as WeekdayAverage[];
       return [{
-        timestamp: formatDisplayDate(date),
+        date,
         enteringVisitors: dayAverages.reduce((sum, entry) => sum + entry.enteringVisitors, 0),
         leavingVisitors: dayAverages.reduce((sum, entry) => sum + entry.leavingVisitors, 0),
         enteringMen: dayAverages.reduce((sum, entry) => sum + entry.enteringMen, 0),
@@ -218,7 +232,6 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
         enteringGroups: dayAverages.reduce((sum, entry) => sum + entry.enteringGroups, 0),
         leavingGroups: dayAverages.reduce((sum, entry) => sum + entry.leavingGroups, 0),
         passersby: dayAverages.reduce((sum, entry) => sum + entry.passersby, 0),
-        date,
         weather: weatherData.get(formatApiDate(date))
       }];
     }
@@ -226,8 +239,16 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
     return data
       .filter(day => formatDisplayDate(new Date(day.timestamp)) === formatDisplayDate(date))
       .map(day => ({
-        ...day,
         date,
+        enteringVisitors: day.enteringVisitors,
+        leavingVisitors: day.leavingVisitors,
+        enteringMen: day.enteringMen,
+        leavingMen: day.leavingMen,
+        enteringWomen: day.enteringWomen,
+        leavingWomen: day.leavingWomen,
+        enteringGroups: day.enteringGroups,
+        leavingGroups: day.leavingGroups,
+        passersby: day.passersby,
         weather: weatherData.get(formatApiDate(date))
       }));
   };

@@ -90,7 +90,7 @@ export function useRestaurantData(): UseRestaurantDataReturn {
             setData(parsedData);
             setLoading(false);
           },
-          error: (error: Error) => {
+          error: (_error: Error) => {
             setError('Error parsing CSV data');
             setLoading(false);
           }
