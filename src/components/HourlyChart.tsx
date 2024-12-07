@@ -89,49 +89,30 @@ export function HourlyChart({ data, date, benchmarkDate, benchmarkData }: Hourly
     return { maxCaptureRate };
   }, [hourlyData, benchmarkHourlyData]);
 
-  const createDataset = (metric: MetricOption, data: typeof hourlyData, isBenchmark: boolean = false) => ({
-    type: metric.type,
-    label: isBenchmark ? `${metric.label} (${benchmarkData ? 'Average' : 'Benchmark'})` : metric.label,
-    data: data.map(d => d[metric.id as keyof typeof data[0]]),
-    backgroundColor: isBenchmark 
-      ? `${metric.color.replace('rgb', 'rgba').replace(')', ', 0.5)')}` 
-      : metric.color,
-    borderColor: isBenchmark 
-      ? `${metric.color.replace('rgb', 'rgba').replace(')', ', 0.5)')}` 
-      : metric.color,
-    yAxisID: metric.yAxisID,
-    order: metric.type === 'bar' ? 1 : 0,
-    datalabels: {
-      display: (context: any) => {
-        // Only show labels for visitor bars with values > 0
-        return metric.id === 'visitors' && context.dataset.data[context.dataIndex] > 0;
-      },
-      color: 'black',
-      anchor: 'end',
-      align: 'top',
-      offset: 4,
-      font: {
-        weight: 'bold',
-        size: 14
-      },
-      formatter: (value: number) => Math.round(value)
-    }
-  });
-
   const chartData = {
     labels: hourlyData.map(d => d.hour),
-    datasets: [
-      // Primary date datasets
-      ...METRICS
-        .filter(metric => selectedMetrics.includes(metric.id))
-        .map(metric => createDataset(metric, hourlyData)),
-      // Benchmark datasets (if available)
-      ...(benchmarkHourlyData.length > 0 ? METRICS
-        .filter(metric => selectedMetrics.includes(metric.id))
-        .map(metric => createDataset(metric, benchmarkHourlyData, true))
-        : [])
-    ],
-  };
+    datasets: selectedMetrics.map(metric => ({
+      type: metric === 'visitors' ? ('bar' as const) : ('line' as const),
+      label: METRICS.find(m => m.id === metric)?.label || '',
+      data: hourlyData.map(d => d[metric as keyof typeof d] as number),
+      backgroundColor: METRICS.find(m => m.id === metric)?.color || '#000',
+      borderColor: METRICS.find(m => m.id === metric)?.color || '#000',
+      yAxisID: METRICS.find(m => m.id === metric)?.yAxisID || 'yVisitors',
+      order: metric === 'visitors' ? 1 : 0,
+      datalabels: {
+        display: (context: any) => metric === 'visitors',
+        color: 'rgb(17, 24, 39)',
+        anchor: 'end',
+        align: 'top',
+        offset: 4,
+        font: {
+          weight: 'bold',
+          size: 12
+        },
+        formatter: (value: number) => value.toLocaleString()
+      }
+    }))
+  } as const;
 
   const options = {
     responsive: true,

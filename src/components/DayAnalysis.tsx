@@ -19,6 +19,18 @@ interface DayAnalysisProps {
 
 type BenchmarkType = 'none' | 'date' | 'average';
 
+interface WeekdayAverage {
+  enteringVisitors: number;
+  leavingVisitors: number;
+  enteringMen: number;
+  leavingMen: number;
+  enteringWomen: number;
+  leavingWomen: number;
+  enteringGroups: number;
+  leavingGroups: number;
+  passersby: number;
+}
+
 export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [benchmarkDate, setBenchmarkDate] = useState<Date | null>(null);
@@ -81,7 +93,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
     });
 
     // Calculate averages
-    const averages: VisitorData[] = Array.from(hourlyAverages.entries()).map(([hour, totals]) => ({
+    const averages: WeekdayAverage[] = Array.from(hourlyAverages.entries()).map(([hour, totals]) => ({
       timestamp: `${formatDisplayDate(selectedDate)} ${hour}`,
       enteringVisitors: Math.round(totals.enteringVisitors / totals.count),
       leavingVisitors: Math.round(totals.leavingVisitors / totals.count),
@@ -177,19 +189,19 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
   };
 
   const getDataForDate = (date: Date): typeof data => {
-    if (benchmarkType === 'average') {
-      const weekdayAverages = weekdayAverages;
+    if (benchmarkType === 'average' && weekdayAverages) {
+      const dayAverages = weekdayAverages as WeekdayAverage[];
       return [{
         date,
-        enteringVisitors: weekdayAverages.reduce((sum, entry) => sum + entry.enteringVisitors, 0),
-        leavingVisitors: weekdayAverages.reduce((sum, entry) => sum + entry.leavingVisitors, 0),
-        enteringMen: weekdayAverages.reduce((sum, entry) => sum + entry.enteringMen, 0),
-        leavingMen: weekdayAverages.reduce((sum, entry) => sum + entry.leavingMen, 0),
-        enteringWomen: weekdayAverages.reduce((sum, entry) => sum + entry.enteringWomen, 0),
-        leavingWomen: weekdayAverages.reduce((sum, entry) => sum + entry.leavingWomen, 0),
-        enteringGroups: weekdayAverages.reduce((sum, entry) => sum + entry.enteringGroups, 0),
-        leavingGroups: weekdayAverages.reduce((sum, entry) => sum + entry.leavingGroups, 0),
-        passersby: weekdayAverages.reduce((sum, entry) => sum + entry.passersby, 0),
+        enteringVisitors: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringVisitors, 0),
+        leavingVisitors: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingVisitors, 0),
+        enteringMen: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringMen, 0),
+        leavingMen: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingMen, 0),
+        enteringWomen: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringWomen, 0),
+        leavingWomen: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingWomen, 0),
+        enteringGroups: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringGroups, 0),
+        leavingGroups: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingGroups, 0),
+        passersby: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.passersby, 0),
         weather: weatherData.get(formatApiDate(date))
       }];
     }

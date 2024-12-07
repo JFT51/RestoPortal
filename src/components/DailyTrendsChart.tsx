@@ -69,7 +69,7 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
     
     const datasets = selectedMetrics.map(metric => {
       const baseConfig = {
-        label: METRICS.find(m => m.id === metric)?.label,
+        label: METRICS.find(m => m.id === metric)?.label || '',
         data: data.map(d => {
           switch (metric) {
             case 'visitors':
@@ -86,42 +86,51 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
               return 0;
           }
         }),
-        backgroundColor: METRICS.find(m => m.id === metric)?.color,
-        borderColor: METRICS.find(m => m.id === metric)?.color,
-        yAxisID: METRICS.find(m => m.id === metric)?.yAxisID,
-        type: metric === 'visitors' ? 'bar' as const : 'line' as const,
-        tension: 0.3,
-        pointRadius: metric === 'visitors' ? 0 : 4,
-        pointHoverRadius: metric === 'visitors' ? 0 : 6,
-        pointBackgroundColor: METRICS.find(m => m.id === metric)?.color,
-        hoverBackgroundColor: METRICS.find(m => m.id === metric)?.color,
-        order: metric === 'visitors' ? 1 : 0, // Ensure lines appear above bars
-        datalabels: {
-          display: metric === 'visitors',
-          color: 'rgb(17, 24, 39)',
-          anchor: 'end',
-          align: 'top',
-          offset: 4,
-          font: {
-            weight: 'bold',
-            size: 12
-          },
-          formatter: (value: number) => value.toLocaleString()
-        }
       };
 
-      return baseConfig;
+      if (metric === 'visitors') {
+        return {
+          ...baseConfig,
+          type: 'bar' as const,
+          backgroundColor: METRICS.find(m => m.id === metric)?.color || '#000',
+          borderColor: METRICS.find(m => m.id === metric)?.color || '#000',
+          yAxisID: METRICS.find(m => m.id === metric)?.yAxisID || 'yVisitors',
+          order: 1,
+          datalabels: {
+            display: true,
+            color: 'rgb(17, 24, 39)',
+            anchor: 'end',
+            align: 'top',
+            offset: 4,
+            font: {
+              weight: 'bold',
+              size: 12
+            },
+            formatter: (value: number) => value.toLocaleString()
+          }
+        } as const;
+      }
+
+      return {
+        ...baseConfig,
+        type: 'line' as const,
+        backgroundColor: METRICS.find(m => m.id === metric)?.color || '#000',
+        borderColor: METRICS.find(m => m.id === metric)?.color || '#000',
+        yAxisID: METRICS.find(m => m.id === metric)?.yAxisID || 'yVisitors',
+        tension: 0.3,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        pointBackgroundColor: METRICS.find(m => m.id === metric)?.color || '#000',
+        order: 0,
+        datalabels: {
+          display: false
+        }
+      } as const;
     });
 
-    const labels = dates;
-    const datasetsWithTypes = datasets.map(dataset => ({
-      ...dataset,
-      type: dataset.type as 'bar' | 'line',
-    }));
-
     const chartData: ChartDataType<'bar' | 'line'> = {
-      labels,
-      datasets: datasetsWithTypes,
+      labels: dates,
+      datasets
     };
 
     return chartData;
