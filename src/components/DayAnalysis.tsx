@@ -26,8 +26,17 @@ interface VisitorData {
   weather?: WeatherInfo;
 }
 
-interface WeekdayAverage extends Omit<VisitorData, 'timestamp' | 'date' | 'weather'> {
-  timestamp?: string;
+interface WeekdayAverage {
+  timestamp: string;
+  enteringVisitors: number;
+  leavingVisitors: number;
+  enteringMen: number;
+  leavingMen: number;
+  enteringWomen: number;
+  leavingWomen: number;
+  enteringGroups: number;
+  leavingGroups: number;
+  passersby: number;
 }
 
 interface DayAnalysisProps {
@@ -200,15 +209,15 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
       const dayAverages = weekdayAverages as WeekdayAverage[];
       return [{
         timestamp: formatDisplayDate(date),
-        enteringVisitors: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringVisitors, 0),
-        leavingVisitors: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingVisitors, 0),
-        enteringMen: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringMen, 0),
-        leavingMen: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingMen, 0),
-        enteringWomen: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringWomen, 0),
-        leavingWomen: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingWomen, 0),
-        enteringGroups: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringGroups, 0),
-        leavingGroups: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingGroups, 0),
-        passersby: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.passersby, 0),
+        enteringVisitors: dayAverages.reduce((sum, entry) => sum + entry.enteringVisitors, 0),
+        leavingVisitors: dayAverages.reduce((sum, entry) => sum + entry.leavingVisitors, 0),
+        enteringMen: dayAverages.reduce((sum, entry) => sum + entry.enteringMen, 0),
+        leavingMen: dayAverages.reduce((sum, entry) => sum + entry.leavingMen, 0),
+        enteringWomen: dayAverages.reduce((sum, entry) => sum + entry.enteringWomen, 0),
+        leavingWomen: dayAverages.reduce((sum, entry) => sum + entry.leavingWomen, 0),
+        enteringGroups: dayAverages.reduce((sum, entry) => sum + entry.enteringGroups, 0),
+        leavingGroups: dayAverages.reduce((sum, entry) => sum + entry.leavingGroups, 0),
+        passersby: dayAverages.reduce((sum, entry) => sum + entry.passersby, 0),
         date,
         weather: weatherData.get(formatApiDate(date))
       }];

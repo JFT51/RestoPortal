@@ -29,7 +29,7 @@ interface EnhancedDailyData {
   weather?: WeatherInfo;
 }
 
-export function DailyView({ data, loading, _error }: DailyViewProps) {
+export function DailyView({ data, loading }: DailyViewProps) {
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [enhancedData, setEnhancedData] = useState<EnhancedDailyData[]>([]);
   

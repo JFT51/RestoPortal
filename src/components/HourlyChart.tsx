@@ -9,6 +9,7 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartData
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Chart } from 'react-chartjs-2';
