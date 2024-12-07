@@ -1,4 +1,4 @@
-import { Cloud, Droplets, Sun, ThermometerSun, Wind } from 'lucide-react';
+import { Cloud, Droplets, ThermometerSun, Wind } from 'lucide-react';
 import { WeatherInfo } from '../types/restaurant';
 
 interface WeatherCardProps {

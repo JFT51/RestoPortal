@@ -139,7 +139,6 @@ export function DailyView({ data, loading, error }: DailyViewProps) {
           <div className="mb-8">
             <DailyTrendsChart 
               data={lastMonthData}
-              rawData={data}
             />
           </div>
         )}

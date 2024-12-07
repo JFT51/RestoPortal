@@ -23,7 +23,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [benchmarkDate, setBenchmarkDate] = useState<Date | null>(null);
   const [benchmarkType, setBenchmarkType] = useState<BenchmarkType>('none');
-  const [weatherData, setWeatherData] = useState<Map<string, WeatherInfo>>(new Map());
+  const [weatherData, setWeatherData] = useState<WeatherInfo | null>(null);
   const [weatherLoading, setWeatherLoading] = useState(false);
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const dailyData = useDailyData(data);
@@ -119,7 +119,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
       setWeatherError(null);
 
       try {
-        const newWeatherData = new Map<string, WeatherData>();
+        const newWeatherData = new Map<string, WeatherInfo>();
 
         for (const date of datesToFetch) {
           // First try to get from cache
@@ -197,7 +197,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
         enteringGroups: weekdayAverages.reduce((sum, entry) => sum + entry.enteringGroups, 0),
         leavingGroups: weekdayAverages.reduce((sum, entry) => sum + entry.leavingGroups, 0),
         passersby: weekdayAverages.reduce((sum, entry) => sum + entry.passersby, 0),
-        weather: weatherData.get(formatApiDate(date))
+        weather: weatherData
       }];
     }
 
@@ -205,7 +205,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
       .filter(day => formatDisplayDate(day.date) === formatDisplayDate(date))
       .map(day => ({
         ...day,
-        weather: weatherData.get(formatApiDate(day.date))
+        weather: weatherData
       }));
   };
 
@@ -235,6 +235,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
                   }}
                   includeDates={availableDates}
                   placeholderText="Select a date"
+                  selectsRange={false}
                 />
               </div>
 
@@ -270,6 +271,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
                       : ''
                   }`}
                   disabled={benchmarkType !== 'date'}
+                  selectsRange={false}
                 />
               </div>
 

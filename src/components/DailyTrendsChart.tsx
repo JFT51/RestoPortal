@@ -3,15 +3,17 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
-  BarElement,
-  LineElement,
   PointElement,
+  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
+  ChartOptions,
+  ChartData as ChartDataType,
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { Chart, ChartData } from 'react-chartjs-2';
+import { Chart } from 'react-chartjs-2';
 import { Check } from 'lucide-react';
 import { VisitorData } from '../types/restaurant';
 import { format } from 'date-fns';
@@ -19,9 +21,9 @@ import { format } from 'date-fns';
 ChartJS.register(
   CategoryScale,
   LinearScale,
-  BarElement,
-  LineElement,
   PointElement,
+  LineElement,
+  BarElement,
   Title,
   Tooltip,
   Legend,
@@ -121,7 +123,7 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
       type: dataset.type as 'bar' | 'line',
     }));
 
-    const chartData: ChartData<'bar' | 'line'> = {
+    const chartData: ChartDataType<'bar' | 'line'> = {
       labels,
       datasets: datasetsWithTypes,
     };
@@ -151,10 +153,10 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
     };
   }, [data]);
 
-  const options = {
+  const options: ChartOptions<'bar' | 'line'> = {
     responsive: true,
     interaction: {
-      mode: 'index' as const,
+      mode: 'index',
       intersect: false,
     },
     scales: {
@@ -169,9 +171,9 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
         }
       },
       yVisitors: {
-        type: 'linear' as const,
+        type: 'linear',
         display: selectedMetrics.includes('visitors'),
-        position: 'left' as const,
+        position: 'left',
         beginAtZero: true,
         max: maxValues.visitors,
         title: {
@@ -191,9 +193,9 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
         }
       },
       yPassersby: {
-        type: 'linear' as const,
+        type: 'linear',
         display: activeRightAxis === 'passersby',
-        position: 'right' as const,
+        position: 'right',
         beginAtZero: true,
         max: maxValues.passersby,
         grid: {
@@ -208,9 +210,9 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
         }
       },
       yPercentage: {
-        type: 'linear' as const,
+        type: 'linear',
         display: activeRightAxis === 'captureRate',
-        position: 'right' as const,
+        position: 'right',
         beginAtZero: true,
         max: maxValues.captureRateMax,
         grid: {
@@ -229,9 +231,9 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
         }
       },
       yTime: {
-        type: 'linear' as const,
+        type: 'linear',
         display: activeRightAxis === 'dwellTime',
-        position: 'right' as const,
+        position: 'right',
         beginAtZero: true,
         max: maxValues.dwellTime,
         grid: {
@@ -270,15 +272,11 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
       },
       title: {
         display: true,
-        text: 'Last Month Summary',
+        text: 'Daily Trends',
         font: {
-          size: 20,
-          weight: '700'
+          size: 16,
+          weight: 'bold'
         },
-        color: 'rgb(17, 24, 39)',
-        padding: {
-          bottom: 20
-        }
       }
     }
   };
