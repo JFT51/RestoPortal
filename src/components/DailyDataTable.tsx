@@ -3,7 +3,7 @@ import { VisitorData, WeatherInfo } from '../types/restaurant';
 import { calculateBusinessHoursCaptureRate } from '../utils/businessHours';
 import { formatMinutesToTime } from '../utils/timeFormat';
 import { formatDisplayDate } from '../utils/dateFormat';
-import { Cloud, CloudDrizzle, CloudLightning, CloudRain, CloudSnow, Sun, CloudFog } from 'lucide-react';
+import { Cloud, CloudLightning, CloudRain, CloudSnow, Sun, CloudFog } from 'lucide-react';
 
 interface DailyDataTableProps {
   data: {

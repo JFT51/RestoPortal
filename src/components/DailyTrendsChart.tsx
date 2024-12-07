@@ -11,7 +11,7 @@ import {
   Legend,
 } from 'chart.js';
 import ChartDataLabels from 'chartjs-plugin-datalabels';
-import { Chart } from 'react-chartjs-2';
+import { Chart, ChartData } from 'react-chartjs-2';
 import { Check } from 'lucide-react';
 import { VisitorData } from '../types/restaurant';
 import { format } from 'date-fns';
@@ -35,7 +35,6 @@ interface DailyTrendsChartProps {
     passersby: number;
     dwellTime: number;
   }[];
-  rawData: VisitorData[];
 }
 
 interface MetricOption {
@@ -55,7 +54,7 @@ const METRICS: MetricOption[] = [
 
 const DEFAULT_METRICS = ['visitors', 'captureRate'];
 
-export function DailyTrendsChart({ data, rawData }: DailyTrendsChartProps) {
+export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
   const [selectedMetrics, setSelectedMetrics] = useState<string[]>(DEFAULT_METRICS);
 
   // Get the last selected non-visitor metric for the right y-axis
@@ -116,7 +115,18 @@ export function DailyTrendsChart({ data, rawData }: DailyTrendsChartProps) {
         };
       });
 
-    return { labels: dates, datasets };
+    const labels = dates;
+    const datasetsWithTypes = datasets.map(dataset => ({
+      ...dataset,
+      type: dataset.type as 'bar' | 'line',
+    }));
+
+    const chartData: ChartData<'bar' | 'line'> = {
+      labels,
+      datasets: datasetsWithTypes,
+    };
+
+    return chartData;
   }, [data, selectedMetrics]);
 
   // Calculate max values for each axis with some padding
