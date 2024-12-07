@@ -298,8 +298,8 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
                   <input
                     type="checkbox"
                     checked={benchmarkType === 'date'}
-                    onChange={(e) => {
-                      setBenchmarkType(e.target.checked ? 'date' : 'none');
+                    onChange={() => {
+                      setBenchmarkType(benchmarkType === 'date' ? 'none' : 'date');
                       setBenchmarkDate(null);
                     }}
                     className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
@@ -334,8 +334,8 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
                     <input
                       type="checkbox"
                       checked={benchmarkType === 'average'}
-                      onChange={(e) => {
-                        setBenchmarkType(e.target.checked ? 'average' : 'none');
+                      onChange={() => {
+                        setBenchmarkType(benchmarkType === 'average' ? 'none' : 'average');
                         setBenchmarkDate(null);
                       }}
                       className="w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary"
