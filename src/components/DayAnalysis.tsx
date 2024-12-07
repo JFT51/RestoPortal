@@ -6,20 +6,13 @@ import { AlertCircle } from 'lucide-react';
 import { DailyDataTable } from './DailyDataTable';
 import { HourlyChart } from './HourlyChart';
 import { TimePeriodCards } from './TimePeriodCards';
-import { VisitorData, WeatherInfo } from '../types/restaurant';
+import { WeatherInfo } from '../types/restaurant';
 import { useDailyData } from '../hooks/useDailyData';
 import { formatDisplayDate, formatApiDate } from '../utils/dateFormat';
 import { fetchWeatherData, getCachedWeatherData } from '../services/weatherService';
 
-interface DayAnalysisProps {
-  data: VisitorData[];
-  loading: boolean;
-  error: string | null;
-}
-
-type BenchmarkType = 'none' | 'date' | 'average';
-
-interface WeekdayAverage {
+interface VisitorData {
+  timestamp: string;
   enteringVisitors: number;
   leavingVisitors: number;
   enteringMen: number;
@@ -29,7 +22,21 @@ interface WeekdayAverage {
   enteringGroups: number;
   leavingGroups: number;
   passersby: number;
+  date?: Date;
+  weather?: WeatherInfo;
 }
+
+interface WeekdayAverage extends Omit<VisitorData, 'timestamp' | 'date' | 'weather'> {
+  timestamp?: string;
+}
+
+interface DayAnalysisProps {
+  data: VisitorData[];
+  loading: boolean;
+  error: string | null;
+}
+
+type BenchmarkType = 'none' | 'date' | 'average';
 
 export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
@@ -188,11 +195,11 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
     setBenchmarkDate(date);
   };
 
-  const getDataForDate = (date: Date): typeof data => {
+  const getDataForDate = (date: Date): VisitorData[] => {
     if (benchmarkType === 'average' && weekdayAverages) {
       const dayAverages = weekdayAverages as WeekdayAverage[];
       return [{
-        date,
+        timestamp: formatDisplayDate(date),
         enteringVisitors: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringVisitors, 0),
         leavingVisitors: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingVisitors, 0),
         enteringMen: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringMen, 0),
@@ -202,15 +209,17 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
         enteringGroups: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.enteringGroups, 0),
         leavingGroups: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.leavingGroups, 0),
         passersby: dayAverages.reduce((sum: number, entry: WeekdayAverage) => sum + entry.passersby, 0),
+        date,
         weather: weatherData.get(formatApiDate(date))
       }];
     }
 
     return data
-      .filter(day => formatDisplayDate(day.date) === formatDisplayDate(date))
+      .filter(day => formatDisplayDate(new Date(day.timestamp)) === formatDisplayDate(date))
       .map(day => ({
         ...day,
-        weather: weatherData.get(formatApiDate(day.date))
+        date,
+        weather: weatherData.get(formatApiDate(date))
       }));
   };
 

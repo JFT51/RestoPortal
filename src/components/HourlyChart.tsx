@@ -89,30 +89,35 @@ export function HourlyChart({ data, date, benchmarkDate, benchmarkData }: Hourly
     return { maxCaptureRate };
   }, [hourlyData, benchmarkHourlyData]);
 
-  const chartData = {
+  const chartData: ChartData<'bar' | 'line'> = {
     labels: hourlyData.map(d => d.hour),
-    datasets: selectedMetrics.map(metric => ({
-      type: metric === 'visitors' ? ('bar' as const) : ('line' as const),
-      label: METRICS.find(m => m.id === metric)?.label || '',
-      data: hourlyData.map(d => d[metric as keyof typeof d] as number),
-      backgroundColor: METRICS.find(m => m.id === metric)?.color || '#000',
-      borderColor: METRICS.find(m => m.id === metric)?.color || '#000',
-      yAxisID: METRICS.find(m => m.id === metric)?.yAxisID || 'yVisitors',
-      order: metric === 'visitors' ? 1 : 0,
-      datalabels: {
-        display: (context: any) => metric === 'visitors',
-        color: 'rgb(17, 24, 39)',
-        anchor: 'end',
-        align: 'top',
-        offset: 4,
-        font: {
-          weight: 'bold',
-          size: 12
-        },
-        formatter: (value: number) => value.toLocaleString()
-      }
-    }))
-  } as const;
+    datasets: selectedMetrics.map(metric => {
+      const metricConfig = METRICS.find(m => m.id === metric);
+      const isBar = metric === 'visitors';
+      
+      return {
+        type: isBar ? 'bar' : 'line',
+        label: metricConfig?.label || '',
+        data: hourlyData.map(d => d[metric as keyof typeof d] as number),
+        backgroundColor: metricConfig?.color || '#000',
+        borderColor: metricConfig?.color || '#000',
+        yAxisID: metricConfig?.yAxisID || 'yVisitors',
+        order: isBar ? 1 : 0,
+        datalabels: {
+          display: isBar,
+          color: 'rgb(17, 24, 39)',
+          anchor: 'end',
+          align: 'top',
+          offset: 4,
+          font: {
+            weight: 'bold' as const,
+            size: 12
+          },
+          formatter: (value: number) => value.toLocaleString()
+        }
+      };
+    })
+  };
 
   const options = {
     responsive: true,

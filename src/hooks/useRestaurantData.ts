@@ -91,8 +91,11 @@ export function useRestaurantData(): UseRestaurantDataReturn {
             setLoading(false);
           },
           error: (error) => {
-            setError('Error parsing CSV data');
-            setLoading(false);
+            const handleError = (_error: Error) => {
+              setError('Error parsing CSV data');
+              setLoading(false);
+            };
+            handleError(error);
           }
         });
       } catch (err) {
