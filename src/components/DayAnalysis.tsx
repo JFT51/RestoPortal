@@ -23,8 +23,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [benchmarkDate, setBenchmarkDate] = useState<Date | null>(null);
   const [benchmarkType, setBenchmarkType] = useState<BenchmarkType>('none');
-  const [weatherData, setWeatherData] = useState<WeatherInfo | null>(null);
-  const [weatherLoading, setWeatherLoading] = useState(false);
+  const [weatherData, setWeatherData] = useState<Map<string, WeatherInfo>>(new Map());
   const [weatherError, setWeatherError] = useState<string | null>(null);
   const dailyData = useDailyData(data);
 
@@ -115,7 +114,6 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
         datesToFetch.push(benchmarkDate);
       }
 
-      setWeatherLoading(true);
       setWeatherError(null);
 
       try {
@@ -143,8 +141,6 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
         setWeatherData(newWeatherData);
       } catch (err) {
         setWeatherError(err instanceof Error ? err.message : 'Failed to fetch weather data');
-      } finally {
-        setWeatherLoading(false);
       }
     };
 
@@ -169,6 +165,43 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
     openToDate: getLastMonthDate() // Set calendar to open on last month
   };
 
+  const handleDateChange = (date: Date | null) => {
+    setSelectedDate(date);
+    if (date && benchmarkType === 'date') {
+      setBenchmarkDate(null);
+    }
+  };
+
+  const handleBenchmarkChange = (date: Date | null) => {
+    setBenchmarkDate(date);
+  };
+
+  const getDataForDate = (date: Date): typeof data => {
+    if (benchmarkType === 'average') {
+      const weekdayAverages = weekdayAverages;
+      return [{
+        date,
+        enteringVisitors: weekdayAverages.reduce((sum, entry) => sum + entry.enteringVisitors, 0),
+        leavingVisitors: weekdayAverages.reduce((sum, entry) => sum + entry.leavingVisitors, 0),
+        enteringMen: weekdayAverages.reduce((sum, entry) => sum + entry.enteringMen, 0),
+        leavingMen: weekdayAverages.reduce((sum, entry) => sum + entry.leavingMen, 0),
+        enteringWomen: weekdayAverages.reduce((sum, entry) => sum + entry.enteringWomen, 0),
+        leavingWomen: weekdayAverages.reduce((sum, entry) => sum + entry.leavingWomen, 0),
+        enteringGroups: weekdayAverages.reduce((sum, entry) => sum + entry.enteringGroups, 0),
+        leavingGroups: weekdayAverages.reduce((sum, entry) => sum + entry.leavingGroups, 0),
+        passersby: weekdayAverages.reduce((sum, entry) => sum + entry.passersby, 0),
+        weather: weatherData.get(formatApiDate(date))
+      }];
+    }
+
+    return data
+      .filter(day => formatDisplayDate(day.date) === formatDisplayDate(date))
+      .map(day => ({
+        ...day,
+        weather: weatherData.get(formatApiDate(day.date))
+      }));
+  };
+
   if (loading) {
     return <LoadingSpinner />;
   }
@@ -181,33 +214,6 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
       </div>
     );
   }
-
-  const getSelectedDayData = (date: Date | null, useAverages: boolean = false) => {
-    if (!date) return [];
-
-    if (useAverages && weekdayAverages) {
-      return [{
-        date,
-        enteringVisitors: weekdayAverages.reduce((sum, entry) => sum + entry.enteringVisitors, 0),
-        leavingVisitors: weekdayAverages.reduce((sum, entry) => sum + entry.leavingVisitors, 0),
-        enteringMen: weekdayAverages.reduce((sum, entry) => sum + entry.enteringMen, 0),
-        leavingMen: weekdayAverages.reduce((sum, entry) => sum + entry.leavingMen, 0),
-        enteringWomen: weekdayAverages.reduce((sum, entry) => sum + entry.enteringWomen, 0),
-        leavingWomen: weekdayAverages.reduce((sum, entry) => sum + entry.leavingWomen, 0),
-        enteringGroups: weekdayAverages.reduce((sum, entry) => sum + entry.enteringGroups, 0),
-        leavingGroups: weekdayAverages.reduce((sum, entry) => sum + entry.leavingGroups, 0),
-        passersby: weekdayAverages.reduce((sum, entry) => sum + entry.passersby, 0),
-        weather: weatherData
-      }];
-    }
-
-    return dailyData
-      .filter(day => formatDisplayDate(day.date) === formatDisplayDate(date))
-      .map(day => ({
-        ...day,
-        weather: weatherData
-      }));
-  };
 
   const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const selectedDayName = selectedDate ? weekdays[selectedDate.getDay()] : '';
@@ -227,12 +233,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
                   {...datePickerProps}
                   id="date-select"
                   selected={selectedDate}
-                  onChange={(date) => {
-                    setSelectedDate(date);
-                    if (benchmarkType === 'date') {
-                      setBenchmarkDate(null);
-                    }
-                  }}
+                  onChange={handleDateChange}
                   includeDates={availableDates}
                   placeholderText="Select a date"
                   selectsRange={false}
@@ -262,7 +263,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
                   {...datePickerProps}
                   id="benchmark-date-select"
                   selected={benchmarkDate}
-                  onChange={(date) => setBenchmarkDate(date)}
+                  onChange={handleBenchmarkChange}
                   includeDates={availableDates}
                   placeholderText="Select benchmark date"
                   className={`${datePickerProps.className} ${
@@ -308,9 +309,8 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
             <div className="mt-6">
               <DailyDataTable 
                 data={[
-                  ...getSelectedDayData(selectedDate),
-                  ...(benchmarkType === 'date' && benchmarkDate ? getSelectedDayData(benchmarkDate) : []),
-                  ...(benchmarkType === 'average' ? getSelectedDayData(selectedDate, true) : [])
+                  ...getDataForDate(selectedDate),
+                  ...(benchmarkType === 'date' && benchmarkDate ? getDataForDate(benchmarkDate) : []),
                 ]}
                 rawData={benchmarkType === 'average' ? weekdayAverages || [] : data}
                 isBenchmarking={benchmarkType !== 'none'}

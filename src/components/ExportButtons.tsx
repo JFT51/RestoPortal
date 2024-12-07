@@ -132,7 +132,7 @@ export function ExportButtons({ currentView, data }: ExportButtonsProps) {
 
         case 'analysis':
           // For analysis view, export the hourly data of the selected date if available
-          const selectedDate = document.querySelector('input[type="text"]')?.value;
+          const selectedDate = document.querySelector<HTMLInputElement>('input[type="text"]')?.value;
           if (selectedDate) {
             exportData = data
               .filter(entry => entry.timestamp.startsWith(selectedDate))

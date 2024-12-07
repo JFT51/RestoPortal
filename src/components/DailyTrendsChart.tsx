@@ -15,7 +15,6 @@ import {
 import ChartDataLabels from 'chartjs-plugin-datalabels';
 import { Chart } from 'react-chartjs-2';
 import { Check } from 'lucide-react';
-import { VisitorData } from '../types/restaurant';
 import { format } from 'date-fns';
 
 ChartJS.register(
@@ -68,54 +67,51 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
   const chartData = useMemo(() => {
     const dates = data.map(day => format(day.date, 'EEE dd MMM'));
     
-    const datasets = METRICS
-      .filter(metric => selectedMetrics.includes(metric.id))
-      .map(metric => {
-        const values = data.map(day => {
-          switch (metric.id) {
+    const datasets = selectedMetrics.map(metric => {
+      const baseConfig = {
+        label: METRICS.find(m => m.id === metric)?.label,
+        data: data.map(d => {
+          switch (metric) {
             case 'visitors':
-              return day.enteringVisitors;
+              return d.enteringVisitors;
             case 'passersby':
-              return day.passersby;
+              return d.passersby;
             case 'captureRate':
-              return day.passersby > 0 
-                ? (day.enteringVisitors / day.passersby) * 100 
+              return d.passersby > 0 
+                ? (d.enteringVisitors / d.passersby) * 100 
                 : 0;
             case 'dwellTime':
-              return day.dwellTime;
+              return d.dwellTime;
             default:
               return 0;
           }
-        });
+        }),
+        backgroundColor: METRICS.find(m => m.id === metric)?.color,
+        borderColor: METRICS.find(m => m.id === metric)?.color,
+        yAxisID: METRICS.find(m => m.id === metric)?.yAxisID,
+        type: metric === 'visitors' ? 'bar' as const : 'line' as const,
+        tension: 0.3,
+        pointRadius: metric === 'visitors' ? 0 : 4,
+        pointHoverRadius: metric === 'visitors' ? 0 : 6,
+        pointBackgroundColor: METRICS.find(m => m.id === metric)?.color,
+        hoverBackgroundColor: METRICS.find(m => m.id === metric)?.color,
+        order: metric === 'visitors' ? 1 : 0, // Ensure lines appear above bars
+        datalabels: {
+          display: metric === 'visitors',
+          color: 'rgb(17, 24, 39)',
+          anchor: 'end',
+          align: 'top',
+          offset: 4,
+          font: {
+            weight: 'bold',
+            size: 12
+          },
+          formatter: (value: number) => value.toLocaleString()
+        }
+      };
 
-        return {
-          type: metric.type,
-          label: metric.label,
-          data: values,
-          backgroundColor: metric.color,
-          borderColor: metric.type === 'line' ? metric.color : undefined,
-          borderWidth: metric.type === 'line' ? 2 : 0,
-          yAxisID: metric.yAxisID,
-          tension: 0.3,
-          pointRadius: metric.type === 'line' ? 4 : 0,
-          pointHoverRadius: metric.type === 'line' ? 6 : 0,
-          pointBackgroundColor: metric.color,
-          hoverBackgroundColor: metric.color,
-          order: metric.type === 'bar' ? 1 : 0, // Ensure lines appear above bars
-          datalabels: {
-            display: metric.type === 'bar',
-            color: 'rgb(17, 24, 39)',
-            anchor: 'end',
-            align: 'top',
-            offset: 4,
-            font: {
-              weight: '600',
-              size: 12
-            },
-            formatter: (value: number) => value.toLocaleString()
-          }
-        };
-      });
+      return baseConfig;
+    });
 
     const labels = dates;
     const datasetsWithTypes = datasets.map(dataset => ({
@@ -166,7 +162,7 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
         },
         ticks: {
           font: {
-            weight: '700'
+            weight: 'bold'
           }
         }
       },
@@ -180,12 +176,12 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
           display: true,
           text: 'Number of Visitors',
           font: {
-            weight: '700'
+            weight: 'bold'
           }
         },
         ticks: {
           font: {
-            weight: '700'
+            weight: 'bold'
           }
         },
         grid: {
@@ -205,7 +201,7 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
           display: true,
           text: 'Number of Passersby',
           font: {
-            weight: '700'
+            weight: 'bold'
           }
         }
       },
@@ -222,11 +218,11 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
           display: true,
           text: 'Capture Rate (%)',
           font: {
-            weight: '700'
+            weight: 'bold'
           }
         },
         ticks: {
-          callback: (value: number) => `${value}%`,
+          callback: (value) => `${value}%`,
           stepSize: maxValues.captureRateStep
         }
       },
@@ -243,7 +239,7 @@ export function DailyTrendsChart({ data }: DailyTrendsChartProps) {
           display: true,
           text: 'Dwell Time (minutes)',
           font: {
-            weight: '700'
+            weight: 'bold'
           }
         }
       }
