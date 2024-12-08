@@ -204,7 +204,8 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
     showWeekNumbers: true,
     dateFormat: "EEE dd MMM yyyy", // Updated format to show day name, day, month name, and year
     className: "px-3 py-2 border rounded-md min-w-[200px]", // Added min-width for consistency
-    openToDate: getLastMonthDate() // Set calendar to open on last month
+    openToDate: getLastMonthDate(), // Set calendar to open on last month
+    inline: true as const // Add this to fix type issue
   };
 
   const handleDateChange = (date: Date | null) => {
@@ -287,6 +288,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
                   onChange={handleDateChange}
                   includeDates={availableDates}
                   placeholderText="Select a date"
+                  inline={true}
                 />
               </div>
 
@@ -311,17 +313,17 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
               <div className="flex items-center gap-4">
                 <DatePicker
                   {...datePickerProps}
-                  id="benchmark-date-select"
                   selected={benchmarkDate}
                   onChange={handleBenchmarkChange}
                   includeDates={availableDates}
-                  placeholderText="Select benchmark date"
+                  placeholderText="Select a benchmark date"
                   className={`${datePickerProps.className} ${
                     benchmarkType !== 'date' 
                       ? 'bg-gray-50 text-gray-500 cursor-not-allowed'
                       : ''
                   }`}
                   disabled={benchmarkType !== 'date'}
+                  inline={true}
                 />
               </div>
 
