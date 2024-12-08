@@ -57,11 +57,13 @@ interface DayAnalysisProps {
   data: VisitorData[];
   loading: boolean;
   error: string | null;
+  onDateSelect: (date: Date | null) => void;
+  onBenchmarkSelect: (date: Date | null) => void;
 }
 
 type BenchmarkType = 'none' | 'date' | 'average';
 
-export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
+export function DayAnalysis({ data, loading, error, onDateSelect, onBenchmarkSelect }: DayAnalysisProps) {
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [benchmarkDate, setBenchmarkDate] = useState<Date | null>(null);
   const [benchmarkType, setBenchmarkType] = useState<BenchmarkType>('none');
@@ -209,15 +211,24 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
     selectsMultiple: true as const // Required by type system
   };
 
-  const handleDateChange = (date: Date | null) => {
-    setSelectedDate(date);
-    if (date && benchmarkType === 'date') {
-      setBenchmarkDate(null);
+  const handleDateChange = (dates: Date[] | null) => {
+    if (dates && dates.length > 0) {
+      setSelectedDate(dates[0]);
+      onDateSelect(dates[0]);
+    } else {
+      setSelectedDate(null);
+      onDateSelect(null);
     }
   };
 
-  const handleBenchmarkChange = (date: Date | null) => {
-    setBenchmarkDate(date);
+  const handleBenchmarkChange = (dates: Date[] | null) => {
+    if (dates && dates.length > 0) {
+      setBenchmarkDate(dates[0]);
+      onBenchmarkSelect(dates[0]);
+    } else {
+      setBenchmarkDate(null);
+      onBenchmarkSelect(null);
+    }
   };
 
   const getDataForDate = (date: Date): DayData[] => {
@@ -285,7 +296,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
                 <DatePicker
                   {...datePickerProps}
                   id="date-select"
-                  selected={selectedDate}
+                  selected={selectedDate ? [selectedDate] : null}
                   onChange={handleDateChange}
                   includeDates={availableDates}
                   placeholderText="Select a date"
@@ -314,7 +325,7 @@ export function DayAnalysis({ data, loading, error }: DayAnalysisProps) {
               {/* Benchmark date selection */}
               <div className="flex items-center gap-4">
                 <DatePicker
-                  selected={benchmarkDate}
+                  selected={benchmarkDate ? [benchmarkDate] : null}
                   onChange={handleBenchmarkChange}
                   includeDates={availableDates}
                   placeholderText="Select a benchmark date"
