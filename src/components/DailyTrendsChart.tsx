@@ -17,18 +17,6 @@ import { Chart } from 'react-chartjs-2';
 import { Check } from 'lucide-react';
 import { format } from 'date-fns';
 
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartDataLabels
-);
-
 interface DailyTrendsChartProps {
   data: {
     date: Date;

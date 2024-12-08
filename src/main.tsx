@@ -8,22 +8,28 @@ import {
   Chart as ChartJS,
   CategoryScale,
   LinearScale,
+  PointElement,
+  LineElement,
   BarElement,
   Title,
   Tooltip,
   Legend,
-  BarController
+  BarController,
+  LineController
 } from 'chart.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 
 ChartJS.register(
   CategoryScale,
   LinearScale,
+  PointElement,
+  LineElement,
   BarElement,
+  BarController,
+  LineController,
   Title,
   Tooltip,
   Legend,
-  BarController,
   ChartDataLabels
 )
 
