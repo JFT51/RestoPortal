@@ -202,7 +202,7 @@ export function DayAnalysis({ data, loading, error, onDateSelect, onBenchmarkSel
 
   // DatePicker common props
   const datePickerProps = {
-    calendarStartDay: 1, // Start weeks on Monday
+    calendarStartDay: 1 as 1, // Start weeks on Monday, explicitly type as 1
     showWeekNumbers: true,
     dateFormat: "EEE dd MMM yyyy", // Updated format to show day name, day, month name, and year
     className: "px-3 py-2 border rounded-md min-w-[200px]", // Added min-width for consistency
@@ -337,7 +337,7 @@ export function DayAnalysis({ data, loading, error, onDateSelect, onBenchmarkSel
                   disabled={benchmarkType !== 'date'}
                   monthsShown={1}
                   selectsMultiple={true}
-                  calendarStartDay={1}
+                  calendarStartDay={1 as 1}
                   showWeekNumbers={true}
                   dateFormat="EEE dd MMM yyyy"
                   openToDate={getLastMonthDate()}
