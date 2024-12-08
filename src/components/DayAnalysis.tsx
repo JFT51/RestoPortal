@@ -296,8 +296,8 @@ export function DayAnalysis({ data, loading, error, onDateSelect, onBenchmarkSel
                 <DatePicker
                   {...datePickerProps}
                   id="date-select"
-                  selected={selectedDate ? [selectedDate] : null}
-                  onChange={handleDateChange}
+                  selected={selectedDate}
+                  onChange={handleDateChange as (dates: Date[] | null) => void}
                   includeDates={availableDates}
                   placeholderText="Select a date"
                   monthsShown={1}
@@ -325,8 +325,8 @@ export function DayAnalysis({ data, loading, error, onDateSelect, onBenchmarkSel
               {/* Benchmark date selection */}
               <div className="flex items-center gap-4">
                 <DatePicker
-                  selected={benchmarkDate ? [benchmarkDate] : null}
-                  onChange={handleBenchmarkChange}
+                  selected={benchmarkDate}
+                  onChange={handleBenchmarkChange as (dates: Date[] | null) => void}
                   includeDates={availableDates}
                   placeholderText="Select a benchmark date"
                   className={`${datePickerProps.className} ${
